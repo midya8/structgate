@@ -65,6 +65,8 @@ class SchemaValidator:
         return '"' + self.schema.fields[i][0] + '"'
 
     def allowed(self, vocab: Sequence[str]) -> frozenset:
+        if self._failed:
+            return frozenset()
         out = []
         for ch in vocab:
             if self._would_accept(ch):
