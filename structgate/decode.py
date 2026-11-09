@@ -3,7 +3,7 @@
 `generate` walks an exact next-token distribution. In constrained mode the
 distribution is masked to the grammar-legal set and renormalized; the
 renormalization cost -ln(Z), where Z is the probability mass the grammar
-allowed, is the exact KL divergence KL(p || p_masked) and is recorded per step.
+allowed, is the exact KL divergence KL(p_masked || p) and is recorded per step.
 """
 
 from __future__ import annotations
