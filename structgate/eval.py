@@ -3,11 +3,12 @@
 Three modes are compared over seeded draws from the same model:
 
 - none:    raw sampling from the exact distribution (negative control)
-- grammar: JSON-grammar masking - every emitted document is valid JSON
-- schema:  closed-schema masking - every document also conforms to the schema
+- grammar: JSON-grammar masking - emitted prefixes stay legal; completion is measured
+- schema:  closed-schema masking - completed records conform to the schema
 
 The mask cost is the per-step renormalization cost -ln(Z), exactly the KL
-divergence from the unconstrained distribution to its masked renormalization.
+divergence from the masked distribution to its unconstrained source. The
+reverse direction is infinite when positive source mass is excluded.
 """
 
 from __future__ import annotations
