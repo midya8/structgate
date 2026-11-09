@@ -1,0 +1,1 @@
+{"modes":{"none":{"valid":3,"n":40,"rate":0.075,"mean_kl":0.0,"max_kl":0.0},"grammar":{"valid":40,"n":40,"rate":1.0,"mean_kl":1.3495768111036148,"max_kl":8.84815024734934},"schema":{"valid":40,"n":40,"rate":1.0,"mean_kl":0.8209333725948592,"max_kl":8.84815024734934}},"n":40,"base_seed":1000,"model":{"order":3,"smoothing":0.05,"vocab_size":46}}

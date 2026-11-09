@@ -1,10 +1,8 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -16,12 +14,27 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run unit tests
-        run: python -m unittest discover -s tests -v
-      - name: Run gates
-        run: >
-          python -m structgate gates
-          --min-valid-rate 1.0
-          --min-conformance 1.0
-          --max-mean-kl 2.0
-          --max-unconstrained-rate 0.2
+      - run: python -m unittest discover -s tests -v
+      - run: python scripts/verify_regeneration.py
+      - name: Original gates, unchanged controls
+        run: python -m structgate gates --min-valid-rate 1 --min-conformance 1 --max-mean-kl 2 --max-unconstrained-rate .2
+      - run: bash examples/demo.sh
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test tests/*.cjs
+  installed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: bash examples/verify_wheel.sh

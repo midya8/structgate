@@ -107,6 +107,8 @@ class JSONValidator:
 
     def allowed(self, vocab: Sequence[str]) -> FrozenSet[str]:
         """Exact set of next characters that keep the prefix valid."""
+        if self._failed:
+            return frozenset()
         out = []
         for ch in vocab:
             snap = self.snapshot()
