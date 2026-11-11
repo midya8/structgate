@@ -1,5 +1,20 @@
 # StructGate
 
+## New in 0.3: the future has a weight
+
+[Open the exact DFA conditioning inspector](https://midya8.github.io/structgate/automaton.html) · [Model, equations and credited sources](AUTOMATON.md)
+
+A separate finite-horizon product-state API contrasts syntactic viability masking with global acceptance conditioning for a supplied first-order source and total DFA. Inspect every future mass, transition and forward marginal. In the ending control, word 01 has source probability 1/20, local-mask probability 1/2 and global conditional probability 1/10. At horizon32, 4,294,967,296 possible source words have 192 transition rows, a structural count rather than a speed benchmark.
+
+64 Python tests retain all 54 previous tests; six Node/actual-Chrome tests retain all three previous tests. Independent complete-word checks cover 60 seeded small DFAs. Python Fraction and independent forward-kernel BigInt calculations agree on 24 complete reports, 2,043 future rows, 6,550 symbol rows and 2,239 marginal rows. Chrome checks all 156 selected-word prefixes, 24 responsive views and two trusted downloads. An isolated eleven-module install reproduces every new report through API and both CLI entrypoints; original wheel/demo/evaluation checks remain intact.
+
+This is standard finite-state conditioning, not a new decoding algorithm, random sampler, arbitrary JSON/CFG solver or LLM-quality result. Zero-probability events stay undefined; viable zero-source branches retain their failure mass. All old source-model paths, validators, CLI gates and the original browser inspector stay unchanged. Earlier test counts below describe the retained 0.2 release.
+
+```bash
+python -m structgate.automaton_cli --input examples/automaton.json
+structgate-automaton --input examples/automaton.json
+```
+
 Grammar-constrained generation built from scratch in pure Python: an incremental JSON validator and a closed-schema validator that compute legal next-character sets for supported prefixes, a masked sampler over an exact character-level n-gram distribution, and a measured evaluation of what the constraints buy and what they cost.
 
 StructGate answers the two questions structured-output write-ups usually skip:
