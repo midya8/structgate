@@ -1,10 +1,23 @@
 # StructGate
 
-## New in 0.3: the future has a weight
+StructGate compares local character masking with global acceptance conditioning
+on small, supplied source models. The original JSON/schema sampler uses an exact
+character n-gram; the DFA inspector uses a separate finite-horizon first-order source.
+
+## Choose an inspector
+
+- **Original sampler:** compare unconstrained, JSON-grammar and fixed-record-schema draws and their per-step masking costs.
+- **Prefix and trace inspector:** replay source probabilities, legal sets and historical draws, including failures.
+- **DFA inspector:** compare syntactic viability masking with exact conditioning on acceptance at a fixed horizon.
+
+Legal next characters do not guarantee completion within a finite budget. Local
+renormalization is not generally the same distribution as global conditioning.
+
+## DFA conditioning (0.3)
 
 [Open the exact DFA conditioning inspector](https://midya8.github.io/structgate/automaton.html) · [Model, equations and credited sources](AUTOMATON.md)
 
-A separate finite-horizon product-state API contrasts syntactic viability masking with global acceptance conditioning for a supplied first-order source and total DFA. Inspect every future mass, transition and forward marginal. In the ending control, word 01 has source probability 1/20, local-mask probability 1/2 and global conditional probability 1/10. At horizon32, 4,294,967,296 possible source words have 192 transition rows, a structural count rather than a speed benchmark.
+A separate finite-horizon product-state API contrasts syntactic viability masking with global acceptance conditioning for a supplied first-order source and total DFA. Inspect every future mass, transition and forward marginal. In the ending control, word 01 has source probability 1/20, local-mask probability 1/2 and global conditional probability 1/10. At horizon 32, 4,294,967,296 possible source words have 192 transition rows, a structural count rather than a speed benchmark.
 
 64 Python tests retain all 54 previous tests; six Node/actual-Chrome tests retain all three previous tests. Independent complete-word checks cover 60 seeded small DFAs. Python Fraction and independent forward-kernel BigInt calculations agree on 24 complete reports, 2,043 future rows, 6,550 symbol rows and 2,239 marginal rows. Chrome checks all 156 selected-word prefixes, 24 responsive views and two trusted downloads. An isolated eleven-module install reproduces every new report through API and both CLI entrypoints; original wheel/demo/evaluation checks remain intact.
 
@@ -15,14 +28,16 @@ python -m structgate.automaton_cli --input examples/automaton.json
 structgate-automaton --input examples/automaton.json
 ```
 
-Grammar-constrained generation built from scratch in pure Python: an incremental JSON validator and a closed-schema validator that compute legal next-character sets for supported prefixes, a masked sampler over an exact character-level n-gram distribution, and a measured evaluation of what the constraints buy and what they cost.
+## Original JSON and schema sampler
 
-StructGate answers the two questions structured-output write-ups usually skip:
+The pure-Python implementation includes an incremental JSON validator and a closed-schema validator that compute legal next-character sets for supported prefixes, a masked sampler over an exact character-level n-gram distribution, and a measured evaluation of what the constraints buy and what they cost.
 
-- **Does masking actually guarantee conformance?** On the checked-in fixture, grammar-constrained sampling produces valid JSON on 40/40 seeded draws and schema-constrained sampling produces schema-conforming records on 40/40, against an unconstrained control that manages 3/40 on the same model and seeds. The unconstrained rate is itself gated, so the control cannot quietly stop exercising the constraint.
-- **What does the guarantee cost?** Masking renormalizes the distribution to the legal token set; the per-step cost -ln(Z), where Z is the legal mass, is exactly KL(p_masked || p). The evaluation reports it per mode: mean 1.3496 nats/step for grammar masking on the fixture (max 8.8482), mean 0.8209 for schema masking.
+The original evaluation checks conformance and masking cost on one fixed fixture:
 
-## New: full-model masking and conditioning inspector
+- **Conformance on the fixture.** On the checked-in fixture, grammar-constrained sampling produces valid JSON on 40/40 seeded draws and schema-constrained sampling produces schema-conforming records on 40/40, against an unconstrained control that manages 3/40 on the same model and seeds. The unconstrained rate is itself gated, so the control cannot quietly stop exercising the constraint.
+- **Per-step cost.** Masking renormalizes the distribution to the legal token set; the per-step cost -ln(Z), where Z is the legal mass, is exactly KL(p_masked || p). The evaluation reports it per mode: mean 1.3496 nats/step for grammar masking on the fixture (max 8.8482), mean 0.8209 for schema masking.
+
+## Prefix, trace and finite-language conditioning
 
 [Open the offline-capable inspector](https://midya8.github.io/structgate/) · [Equations, limits and attribution](CONDITIONING.md)
 
@@ -46,7 +61,7 @@ Prefix legality is not completion within a finite budget. The historical fixed r
 - **A closed-schema validator** - required keys in a fixed order, typed slots (string/number/bool), no additional keys. The same masking loop then yields records that parse *and* conform: keys, order, and types enforced during generation, not after.
 - **Deterministic everything** - one seeded RNG per draw, sorted iteration over allowed sets (the suite pins cross-process reproducibility after a hash-order bug was caught), and pinned fixture numbers in tests.
 
-## The trade-off, measured
+## Fixed-fixture results
 
 ```
 mode            valid     rate   mean KL/step   max KL
@@ -77,7 +92,7 @@ bash examples/demo.sh                           # both sides of every gate, offl
 - The unconstrained control is gated from above (`--max-unconstrained-rate`): if a fixture change ever makes raw sampling look good, CI fails instead of letting the comparison go stale.
 - CI runs the same suite across Python 3.10-3.13.
 
-## Bounds worth stating
+## Scope and limits
 
 The character-level n-gram is a toy model; it exists to provide an exact, inspectable distribution, not fluent text, and nothing here claims language-model quality. The constraint engines are the artifact: the JSON validator handles the JSON grammar (not arbitrary context-free grammars), and the schema layer covers a restricted flat closed record with three slot types - nested schemas, unions, and optional fields are future work. KL cost is measured against this model's own unconstrained distribution; other models would show different numbers.
 
